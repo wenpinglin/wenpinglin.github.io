@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>老林的网页集合</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #f5f7fa;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.container {
+  max-width: 640px;
+  width: 90%;
+  padding: 40px 20px;
+}
+h1 {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 8px;
+  color: #1a1a2e;
+}
+.subtitle {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+.page-list {
+  list-style: none;
+}
+.page-list li {
+  margin-bottom: 12px;
+}
+.page-list a {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.page-list a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.page-list .icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+.page-list .arrow {
+  margin-left: auto;
+  color: #ccc;
+  font-size: 18px;
+}
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  color: #aaa;
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🦐 老林的网页集合</h1>
+  <p class="subtitle">点击下方链接访问对应页面</p>
+  <ul class="page-list">
+    <li>
+      <a href="/qa/">
+        <span class="icon">📋</span>
+        <span>门禁+智屏 一线Q&A</span>
+        <span class="arrow">→</span>
+      </a>
+    </li>
+  </ul>
+  <p class="footer">后续新增页面会自动出现在这里</p>
+</div>
+</body>
+</html>

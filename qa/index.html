@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>门禁+智屏 一线FAQ</title>
+<style>
+  :root {
+    --primary: #e6382e;
+    --primary-light: #fef2f1;
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --border: #e8e8ed;
+    --tag-bg: #fff3e0;
+    --tag-text: #e65100;
+    --green: #2e7d32;
+    --green-bg: #e8f5e9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  header {
+    background: linear-gradient(135deg, var(--primary), #c62828);
+    color: #fff;
+    padding: 28px 20px 24px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(230,56,46,0.25);
+  }
+  header h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+  header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  .search-box {
+    margin-top: 14px;
+    position: relative;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+  }
+  .search-box input::placeholder { color: #999; }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 15px;
+  }
+  .nav {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: sticky;
+    top: 110px;
+    z-index: 99;
+  }
+  .nav button {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .nav button.active, .nav button:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 24px 0 12px;
+    padding-left: 10px;
+    border-left: 3px solid var(--primary);
+  }
+  .faq-item {
+    background: var(--card);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    transition: box-shadow .2s;
+  }
+  .faq-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .faq-q {
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14.5px;
+    user-select: none;
+  }
+  .faq-q .icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .faq-q .arrow {
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: transform .25s;
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .faq-item.open .faq-q .arrow { transform: rotate(180deg); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease, padding .3s ease;
+    padding: 0 16px 0 48px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+  .faq-item.open .faq-a {
+    max-height: 800px;
+    padding: 0 16px 16px 48px;
+  }
+  .faq-a p { margin-bottom: 6px; }
+  .faq-a .highlight {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .faq-a .tip {
+    background: var(--green-bg);
+    color: var(--green);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .faq-a .warn {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .faq-a ul { padding-left: 18px; margin: 4px 0 8px; }
+  .faq-a li { margin-bottom: 3px; }
+  .faq-a strong { color: var(--text); }
+  footer {
+    text-align: center;
+    padding: 24px 16px;
+    font-size: 12px;
+    color: #aaa;
+  }
+  @media (max-width: 480px) {
+    header { padding: 20px 16px 18px; }
+    header h1 { font-size: 18px; }
+    .nav { top: 96px; }
+    .faq-q { font-size: 13.5px; padding: 12px 14px; }
+    .faq-a { font-size: 13px; padding-left: 40px; }
+    .faq-item.open .faq-a { padding: 0 14px 14px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>门禁+智屏 一线FAQ</h1>
+  <p>中国电信福建 · 全渠道运营事业部 · 2026年5月</p>
+  <div class="search-box">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="searchInput" placeholder="搜索问题关键词..." />
+  </div>
+</header>
+
+<div class="nav" id="navBar">
+  <button class="active" data-cat="all">全部</button>
+  <button data-cat="entry">入户服务</button>
+  <button data-cat="product">产品功能</button>
+  <button data-cat="sales">营销转化</button>
+  <button data-cat="objection">异议处理</button>
+  <button data-cat="install">安装交付</button>
+  <button data-cat="community">小区合作</button>
+</div>
+
+<div class="container" id="faqContainer">
+
+  <!-- 入户服务 -->
+  <div class="section-title" data-cat="entry">入户服务</div>
+
+  <div class="faq-item" data-cat="entry">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户问"你们怎么是电信的？"怎么回？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>三步应对：亮身份 → 说缘由 → 转服务</strong></p>
+      <p>"对，我们是电信的，同时我们也是智慧社区志愿者。因为单元门门禁是我们公司承建的，所以需要我们帮忙给居民录入信息和服务。您看，这是我们的工作证（展示工牌）。现在帮您录入门禁信息，大概需要10分钟，录入后您就可以刷脸开门了。"</p>
+      <div class="warn">不要遮遮掩掩不承认，也不要一上来就介绍电信业务，要大方承认但强调"服务"属性。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="entry">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户问"为什么要入户？"怎么回？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>三步应对：说刚需 → 说服务 → 说安全</strong></p>
+      <p>"师傅/阿姨，小区所有居民都要录入门禁信息，不录的话后期会非常不方便，刷脸开不了门。另外，我们还提供免费的家庭网络检测服务，帮您检测家里WiFi信号好不好、有没有死角。您看明天上午或下午哪个时间方便？"</p>
+      <div class="tip">用"免费服务"作为入户理由，降低抵触。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="entry">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户不开门怎么应对？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>"今天是社区服务的最后一天了，明天我们就去别的小区服务了。"</p>
+      <p>"我们就在小区里，过来很快，大概5分钟就到。"</p>
+      <div class="tip">也可请物业管家协助敲门，或后续电话复约。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="entry">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>为什么要录入人脸？用户有顾虑怎么办？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>"小区所有居民都要录入门禁，录完以后您才可以刷脸进入单元门，不录的话后期会非常不方便，这也是为了您的安全。"</p>
+      <p>如果用户担心隐私：</p>
+      <p>"我们的系统是按照公安标准建设的，数据本地化部署，不会上传到外网。这是我们的安全等级备案证明（展示）。"</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="entry">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>为什么要等审核？用户嫌慢怎么办？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>"为了防止非本楼栋人员录入人脸，我们的审核人员与物业一起逐个把关，确保信息一致，请您稍等一下。这个档口我刚好给您演示一下如何开门。"</p>
+      <div class="tip">审核等待期间正是做智屏演示的最佳时机！发暗号给后台控制审核节奏：<br>
+      "1栋101抓紧审核" → 营销概率低，5分钟内审核完<br>
+      "1栋201请审核" → 营销概率高，20分钟内审核完</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="entry">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>已经有人脸信息的存量小区，用户问为什么要重新审核？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>"因为门禁更细了，大门是小区的都可以进入，但单元楼要确认下，只有您这个单元楼的才能进入，所以需要重新审核确认。"</p>
+      <p>反复强调"这是升级服务"、"新装了单元楼门禁"，让用户感觉"有新的价值"。</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="entry">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>入户五步法的顺序是什么？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>服务 → 演示 → 测速 → 组网 → 笔算</strong></p>
+      <ul>
+        <li><strong>第1步 服务</strong>（5分钟）：注册公众号、录门禁人脸，趁机了解家庭网络消费情况</li>
+        <li><strong>第2步 演示</strong>（8分钟）：智屏"1+4"场景体验，至少演示3个场景</li>
+        <li><strong>第3步 测速</strong>（3分钟）：3-5个点位测速，挖网络痛点</li>
+        <li><strong>第4步 组网</strong>（2分钟）：手绘户型图，标注盲区，提供FTTR方案</li>
+        <li><strong>第5步 笔算</strong>（5分钟）：合账付费对比算账 + 千兆城市补贴</li>
+      </ul>
+      <div class="warn">千万不要一进门就推销！先服务，再营销。服务时间≥20分钟。</div>
+    </div>
+  </div>
+
+  <!-- 产品功能 -->
+  <div class="section-title" data-cat="product">产品功能</div>
+
+  <div class="faq-item" data-cat="product">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>门禁有哪些开门方式？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>业主开门：刷脸开门</strong>（0.5秒识别，不用带卡带钥匙）</p>
+      <p><strong>访客开门（三种方式）：</strong></p>
+      <ul>
+        <li>微信公众号"一键开门"（小屏，看不到访客视频）</li>
+        <li>智屏对讲开门（大屏，能看见访客视频，访客按房号自动响铃）</li>
+        <li>手机远程开门（在外地也能给家人开门）</li>
+      </ul>
+      <p>另外还支持IC卡开门、二维码开门、密码开门。</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="product">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>智屏"1+4"场景是什么？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>"1" = 开门禁</strong>（核心卖点）</p>
+      <p><strong>"4" = 四大扩展场景：</strong></p>
+      <ul>
+        <li><strong>AI看电视</strong>："小翼管家，我要看中央五套" → 70+频道+7天回看+爱优腾N选1</li>
+        <li><strong>AI打电话</strong>："小翼管家，给妈妈打视频电话" → 视频通话+紧急呼救（"小翼管家，救命"）</li>
+        <li><strong>看监控</strong>："小翼管家，打开7天云回看" → 远程看家+云回看</li>
+        <li><strong>电子相册</strong>：照片轮播，屏保时自动播放</li>
+      </ul>
+      <div class="warn">入户前必须提前绑定：智屏绑定梯口门禁、翼视界已受理、翼家智话已设定、云相册已上传照片、云回看已测试。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="product">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>智屏和手机开门有什么区别？怎么跟用户说？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <ul>
+        <li><strong>屏幕大小</strong>：智屏大屏看得清，手机小屏</li>
+        <li><strong>看见访客</strong>：智屏可以看见访客视频，手机一键开门看不到</li>
+        <li><strong>主动通知</strong>：访客按房号智屏自动响铃，手机需要业主主动打开操作</li>
+        <li><strong>语音开门</strong>：智屏喊一声"小翼管家，开门"就行，不用动手</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="product">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>翼视界在异网环境下无法演示怎么办？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>翼视界需要电信网络才能使用。在异网环境下，<strong>必须连接CP的手机热点</strong>来演示。</p>
+      <div class="warn">入户前务必提前测试好热点连接，避免现场演示失败。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="product">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>紧急呼救功能怎么演示？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>语音："小翼管家，救救我" 或 "小翼管家，救命"</p>
+      <p>实现效果：自动拨通预先设置的紧急联系人号码（最多5个，同时呼叫，第1个接起后其他自动挂断）。</p>
+      <div class="warn">入户前必须在小翼管家上提前绑定好紧急联系人，否则演示会失败！</div>
+    </div>
+  </div>
+
+  <!-- 营销转化 -->
+  <div class="section-title" data-cat="sales">营销转化</div>
+
+  <div class="faq-item" data-cat="sales">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>笔算怎么算？合账付费的逻辑是什么？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>第一步：算用户现有消费</strong></p>
+      <ul>
+        <li>看电视（广电/IPTV）：18-22元/月</li>
+        <li>视频会员（爱优腾）：25元/月</li>
+        <li>监控摄像头：100-200元/台</li>
+        <li>电子相册：450元/台</li>
+        <li>合计：每月超35元 + 首次近千元</li>
+      </ul>
+      <p><strong>第二步：算智屏价值</strong></p>
+      <p>办理天翼智屏相当于提供：两台电视观看账号（直播+点播+回看）、一部可视频的固话（每月送120分钟）、一个监控、一个家庭云盘（电子相册）、爱优腾会员每月可更换。</p>
+      <p><strong>第三步：算千兆补贴</strong></p>
+      <ul>
+        <li>FTTR设备补贴：1主1子网关，价值1799元，两年维保</li>
+        <li>线材补贴：网线换光纤线、组网设计费、工时费等，价值1000元+</li>
+        <li>智能设备补贴：天翼智屏，价值600元</li>
+      </ul>
+      <div class="tip">合账付费比分开买更省，而且有机会领取千兆城市补贴，设备材料免费领，套餐只需迁改。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="sales">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户讲价怎么应对？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>小技巧：先按标准版35元笔算，用户讲价后"向领导申请"最终按10元报价（新装用户），让用户感觉赚到了。</strong></p>
+      <p>异网纯新装场景：做全家笔算，将门禁室内机/监控/看电视等费用都计入全家费用，然后将主套餐+智屏打包报价，例如229+10给用户报价239元。</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="sales">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>千兆城市补贴包含什么？怎么跟用户说？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>"这次政府统一组织的千兆城市建设，电信作为承建方，有提供千兆城市补贴，做光改的居民都有机会免费领取："</p>
+      <ul>
+        <li>FTTR设备：1主1子网关价值1799元，两年维保，只换不修</li>
+        <li>线材：网线换光纤线、组网设计费、工时费等，价值1000元+</li>
+        <li>智能设备：天翼智屏，价值600元</li>
+        <li>合计补贴价值超过3300元</li>
+      </ul>
+      <div class="warn">强调"这个月就截止"，制造紧迫感。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="sales">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>CP组合角色怎么分工？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>角色A（营销人员）</strong>：讲生活场景、挖需求、算账</p>
+      <p><strong>角色B（智家工程师）</strong>：做演示、测网速、专业支持</p>
+      <p><strong>配合口诀：A讲生活场景，B做技术演示；用户点头再推进，不点头就做服务</strong></p>
+      <ul>
+        <li>工程师演示时，营销人员观察用户反应，寻找痛点信号</li>
+        <li>营销人员挖痛点时，工程师补充技术细节</li>
+        <li>营销人员笔算时，工程师支持数据</li>
+      </ul>
+      <p><strong>三大配合关键（杜绝推销感）：</strong></p>
+      <ul>
+        <li><strong>A不夸产品，聊生活</strong> — 不说"设备有N大功能"，说"您家老人孩子开门方便吗？"</li>
+        <li><strong>B不抢话，只演示/测速</strong> — 工程师是技术服务角色，用户问才开口，平时点头配合</li>
+        <li><strong>用户不点头，不提钱</strong> — 不主动报价，只说"帮您查询免费领取"；无兴趣就测网速，绝不硬推</li>
+      </ul>
+      <div class="warn">千万不要角色颠倒：工程师不要抢着推销，营销人员不要抢着演示设备。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="sales">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>低意向用户和高意向用户怎么区分应对？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>场景化分支流程：</strong></p>
+      <p>完成步骤1-7（进门→录脸→开权限→辅导开门→智屏演示）后，根据用户反应走不同分支：</p>
+      <p><strong>用户问价/感兴趣（高意向）：</strong></p>
+      <ul>
+        <li>步骤8：查询"免费领取"可能 — "这个屏是跟梯口门禁配套的，我帮您查一下是否可以免费领取"</li>
+        <li>步骤10：价值笔算 — 算综合账（家庭通讯+电视+门禁三合一），不报单品价格</li>
+      </ul>
+      <p><strong>用户无明显兴趣（低意向）：</strong></p>
+      <ul>
+        <li>步骤9：免费网络测速服务 — "这次服务还有免费网络检测，我们工程师帮您诊断一下"</li>
+        <li>测速过程自然聊网络/智屏价值，待用户松动后再进入步骤10</li>
+        <li>5分钟快速通关，留后路，不纠缠</li>
+      </ul>
+      <div class="tip">临场金句：挖痛点 — "您有没有碰上过亲戚在楼下等，您还没到家？" | 测速引子 — "家里网速好，这些智能设备才不卡顿" | 算账 — "通讯+电视+门禁三合一，比分开买划算太多"</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="sales">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>入户前要准备什么？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>必带物料：</strong></p>
+      <ul>
+        <li>工装工牌（智慧社区志愿者身份）</li>
+        <li>智屏1套（提前绑定该楼栋门禁，贴好房号）</li>
+        <li>FTTR设备1套（展示用）</li>
+        <li>入户服务单/技控表、笔算单/组网报价单</li>
+        <li>网线对比展板（实物）</li>
+      </ul>
+      <p><strong>演示准备：</strong></p>
+      <ul>
+        <li>智屏已绑定梯口门禁（可远程开门）</li>
+        <li>翼视界已受理（连热点演示）</li>
+        <li>翼家智话已设定（通讯录绑定紧急联系人）</li>
+        <li>云相册已上传照片</li>
+        <li>云回看账号已测试</li>
+      </ul>
+      <div class="warn">智屏没有提前绑定梯口门禁是入户演示失败最常见的原因！</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="sales">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>活动关键KPI目标是什么？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <ul>
+        <li><strong>预约率 ≥ 70%</strong>：提前锁定入户机会</li>
+        <li><strong>触客率 ≥ 80%</strong>：实际入户见到客户</li>
+        <li><strong>转化率 ≥ 20%</strong>：最终业务成交比例</li>
+      </ul>
+      <p>每组CP每天可完成8-12户入户服务，预约量按1.5倍储备（考虑跑空率）。</p>
+    </div>
+  </div>
+
+  <!-- 异议处理 -->
+  <div class="section-title" data-cat="objection">异议处理</div>
+
+  <div class="faq-item" data-cat="objection">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户说"我不需要/没兴趣"</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>三步应对：共情理解 → 场景代入 → 降低门槛</strong></p>
+      <p>"我理解，您可能觉得这个事跟您关系不大。不过师傅，您想想，以后快递上门、朋友来访，您在办公室或者外地，直接用手机就能给他们开门，不用跑上跑下，是不是挺方便的？而且今天主要是帮您开通门禁权限，免费的。那个智屏您可以先体验一下，觉得好再用，不好也不用勉强。"</p>
+      <div class="warn">不要一直强调"这个很好，您一定要办"，要用场景让用户自己意识到需求。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="objection">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户说"太贵了"</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>三步应对：拆解价值 → 对比支出 → 补贴促单</strong></p>
+      <p>"大哥，我给您算笔账：您现在看广电电视要22块，爱奇艺优酷会员要25块，这就47块了。还不算您家监控、电子相册这些。我们这个智屏合账付费，电视、会员、监控、视频电话全包含，比分开买还省钱。而且现在有千兆城市补贴，FTTR设备、线材、工时费全免，价值3300块，这个月就截止了。"</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="objection">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户说"我再想想/商量一下"</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>三步应对：探寻原因 → 更换决策人 → 制造紧迫</strong></p>
+      <p>"没问题，买东西确实要慎重。方便问一下，您主要担心哪方面？是价格问题，还是怕用不好？"</p>
+      <p>"您爱人回来的时候，我们再上门给开通门禁，家里有老人小孩确实会更方便。不过这个千兆城市补贴这个月就截止了。您家里门禁还没录入，到时进出不方便，回来的时候联系下，我们再来开通。"</p>
+      <div class="tip">预留再入户机会！不要打电话给不在家里的人决策。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="objection">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户说"我用不着这些功能"</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>三步应对：反问挖掘 → 场景化演示 → 第三方证明</strong></p>
+      <p>"师傅，您家有没有快递上门的情况？有没有老人或者小孩在家？"</p>
+      <p>（用户说有）→ 演示远程开门+可视对讲 → "隔壁201的业主刚才也办了，说用起来很方便。"</p>
+      <div class="warn">不要一次性介绍所有功能造成信息过载，先挖掘场景再针对性演示。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="objection">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户问"为什么要演示？"</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>"按厂家及物业建设的要求需要给您做个开门演示，让您了解升级后的新功能。无论您是否有意向配备智屏，均需完成演示动作。"</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="objection">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>用户说"我家网络挺好的"</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>"刚才演示的时候您也看到了，视频有点卡顿。而且我们这次来主要是做门禁服务，网络检测是免费增值服务，顺便帮您看看。"</p>
+      <p>也可以说："不管是哪种远程开门方式，都需要连接网络，网络不好开门会有延迟，所以这边一起把网络检测一下！"</p>
+    </div>
+  </div>
+
+  <!-- 安装交付 -->
+  <div class="section-title" data-cat="install">安装交付</div>
+
+  <div class="faq-item" data-cat="install">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>CRM受理分几步？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>3步受理：</strong></p>
+      <ol>
+        <li><strong>受理智慧社区平台</strong>（销售品：智慧社区物业管理服务基础版2023版），受理成功后系统分配"群接入号"</li>
+        <li><strong>受理门禁功能</strong>（销售品：人脸门禁2023版、对讲门禁2023版），需根据门禁设备数量对应受理，受理后产生装维工单</li>
+        <li><strong>受理门禁收费包</strong>（一次性包或期缴包），用于项目落收销账，0元也建议受理</li>
+      </ol>
+      <div class="warn">第一步完成后才能受理第二步，否则会报错。前期已开通的不需要再受理。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="install">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>门禁绑定选ICT装维绑定还是省CRM装维绑定？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>推荐ICT装维绑定</strong></p>
+      <ul>
+        <li><strong>ICT装维绑定</strong>：适用全场景（新增、存量升级、故障更换），运维派单，无需客户授权</li>
+        <li><strong>省CRM装维绑定</strong>：仅适用全新增，需客户授权验证码</li>
+      </ul>
+      <p>绑定工具："天翼智慧社区装维工具"（扫码登录）</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="install">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>门禁设备有哪些型号？怎么选？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>4款集采入库的融合版可视对讲门禁：</strong></p>
+      <ul>
+        <li><strong>太川 TC-Y9D-O7A</strong>：7寸屏，支持4G，支持小区大门可视对讲</li>
+        <li><strong>大华 ASI7DX</strong>：7寸屏</li>
+        <li><strong>宇视 ET-51L-HM-ZD@R-TYSQ-SS</strong>：7寸屏</li>
+        <li><strong>韦德 WD-MJF811</strong>：8寸屏，支持小区大门可视对讲</li>
+      </ul>
+      <p>全部3年质保。装维调测费标准：300元/台。</p>
+      <div class="tip">需要支持小区大门可视对讲的场景选太川或韦德。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="install">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>门禁设备坏了怎么报修？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>3年质保期内（以换代修为主）：</strong></p>
+      <ul>
+        <li><strong>太川</strong>：珠海市香洲区华威路611号太川维修组，电话0756-8665566-814，到付</li>
+        <li><strong>大华</strong>：福州市台江区鳌峰广场2号楼1201A，陈明伟 18989873072，拒接到付</li>
+        <li><strong>宇视</strong>：福州市鼓楼区乌山西路570号石湖桥小区1座2梯305室，18167176738，顺丰到付</li>
+        <li><strong>韦德</strong>：深圳市光明区公明街道松白工业园B区A3栋3楼，涂荣峰 13713321519，拒接到付</li>
+      </ul>
+      <p>寄回均需备注：故障现象、回寄地址、联系人、联系方式。</p>
+      <p><strong>质保期后</strong>：CRM受理一次性"综合网络集成服务"标准销售品收费维修。</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="install">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>智屏怎么和门禁对讲绑定？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <ol>
+        <li>确保天翼智屏翼家智话功能已开通、能正常拨打接听电话</li>
+        <li>登录物管平台进入对讲配置界面</li>
+        <li>新增对讲 → 选择对应房间 → 配置智屏翼家智话号码</li>
+      </ol>
+      <div class="warn">入户演示前务必完成绑定并测试，否则呼叫失败！智屏背面贴上房号避免呼叫错房间。</div>
+    </div>
+  </div>
+
+  <!-- 小区合作 -->
+  <div class="section-title" data-cat="community">小区合作</div>
+
+  <div class="faq-item" data-cat="community">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>怎么选小区？"143"原则是什么？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>"1"个有</strong>：小区有意愿（物业&业委会配合）</p>
+      <p><strong>"4"个好</strong>：</p>
+      <ul>
+        <li>物业客情好 — 能配合安装、活动站台、公告通知</li>
+        <li>物业与业主关系好 — 避免关系紧张的小区</li>
+        <li>单元门关门好 — 门能关上，居民有门禁使用习惯</li>
+        <li>单元门条件好 — 磁力锁、闭门器等零件仍可用</li>
+      </ul>
+      <p><strong>"3"个多</strong>：</p>
+      <ul>
+        <li>高层多 — 高层占比大于50%</li>
+        <li>住户多 — 单个门禁可覆盖40-50户及以上，且异网用户多</li>
+        <li>常住居民多 — 租户比例不超过30%</li>
+      </ul>
+      <div class="tip">黄金窗口期：2000-2010年建成、12层以上、有物业、用刷卡门禁的高层住宅小区。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="community">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>四种合作商务模式怎么选？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>模式1 · 对方全部投 — "大胆做"</strong></p>
+      <ul>
+        <li>适用：老旧小区有改造需求，或物业/业委会要求一次性支付不接受分期</li>
+        <li>方式：小微项目型，门禁+监控+综合布线整体方案，对方一次性支付</li>
+        <li>优势：利润高，分局有项目收入</li>
+      </ul>
+      <p><strong>模式2 · 电信投设备+对方出网络费 — "放心做"</strong></p>
+      <ul>
+        <li>适用：物业有需求但小区单元多，减轻前期资金压力</li>
+        <li>方式：设备由电信成本投入，与物业签3年合同，物业每月付门禁网络费</li>
+        <li>优势：物业前期零设备投入，双方长期合作</li>
+      </ul>
+      <p><strong>模式3 · 电信成本投单点突破 — "悠着做"</strong></p>
+      <ul>
+        <li>适用：高价值小区，电信投入单元门禁获得独家入场机会</li>
+        <li>方式：精选小区，单个门禁至少覆盖40户以上，电信门禁唯一且有关门，满足143原则</li>
+        <li>避坑：必须在合同中明确"门禁唯一性"和"闭门要求"，合作前做好效益测算</li>
+      </ul>
+      <p><strong>模式4 · 代理商投入包区 — "一起做"</strong></p>
+      <ul>
+        <li>适用：代理商有本地资源，愿意投入门禁设备</li>
+        <li>方式：代理商投设备+负责建设及物业关系，电信提供网络+平台，双方按约定分成</li>
+        <li>优势：代理商限时独家发展业务，合作共赢</li>
+      </ul>
+      <div class="warn">无论哪种模式，电信出资的都必须确保门禁唯一性和关门启用，否则触客率会很低。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="community">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>物业最关心什么？怎么谈？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>物业3大关注点：安全管理、人力成本、居民投诉</strong></p>
+      <p><strong>洽谈5步法：讲故事 → 挖痛点 → 做演示 → 抛方案 → 促决策</strong></p>
+      <p>成交信号：问实施细节、讨价还价、问合同条款、介绍其他决策者、安排配合事项。</p>
+      <div class="tip">当对方开始讨价还价，说明他已经想买了！</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="community">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>业委会最关心什么？怎么谈？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>业委会3大关注点：资金合法性、隐私安全、业主反对</strong></p>
+      <p><strong>洽谈5步法：讲政策 → 消除顾虑 → 提供方案 → 提供协助 → 促决策</strong></p>
+      <p>关键技巧：带上《安全等级备案证明》；提供《致业主信》模板、PPT、案例视频帮业主大会通过；可先免费建设1个单元楼试用。</p>
+      <div class="tip">业委会换届前后是切入的好时机，帮助新业委会打造亮点。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="community">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>活动后怎么深耕？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>当天复盘：</strong></p>
+      <ul>
+        <li>统计预约量、入户量、转化量</li>
+        <li>收集未转化原因</li>
+        <li>更新用户画像到一线工作台</li>
+      </ul>
+      <p><strong>持续跟进：</strong></p>
+      <ul>
+        <li>未转化用户3天内二次外呼</li>
+        <li>商机用户纳入持续跟进清单</li>
+        <li>已转化用户7天内回访满意度</li>
+      </ul>
+      <p><strong>小区深耕：</strong></p>
+      <ul>
+        <li>明确小区责任人（社区店/智工）</li>
+        <li>保留宣传物料和联系方式</li>
+        <li>责任人保留物管端权限（日常开通服务）</li>
+        <li>虚拟房间绑定智屏（随时可演示）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="community">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>分波次策略是什么？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>第一波次</strong>：以门禁建设为主切入，入户服务+演示+光改，收集家庭画像及商机</p>
+      <p><strong>第二波次</strong>：以定制化场景切入，如安全升级（关爱家人+室内监控）、门锁升级（智能门锁联动智屏）、康养升级（与街道卫生院联合活动）</p>
+      <p><strong>第N波次</strong>：基于第一波画像/商机采集，精准入户营销</p>
+      <div class="tip">后面几波次要在第一波画像/商机采集的基础上开展，越做越精准。</div>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="community">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>活动资料在哪下载？</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p>宣传海报、操作视频、G端文件等：</p>
+      <p><strong>百度云盘地址</strong>：https://pan.baidu.com/s/11HQNTfMsDlLP0AASx84Wxw</p>
+      <p><strong>提取码</strong>：8899</p>
+    </div>
+  </div>
+
+  <div class="faq-item" data-cat="sales">
+    <div class="faq-q">
+      <span class="icon">Q</span>
+      <span>入户前口袋记忆卡（默念版）</span>
+      <span class="arrow">&#9660;</span>
+    </div>
+    <div class="faq-a">
+      <p><strong>A面 · 进门到演示</strong></p>
+      <ul>
+        <li>志愿者，约好的，门禁升级来开通</li>
+        <li>录人脸，刷脸进门不用掏钥匙</li>
+        <li>买菜拿快递，刷脸就开</li>
+        <li>亲戚来、快递到，喊一声或微信开</li>
+        <li>旧屏只能挂门口，新屏放客厅：监控+通话+电视</li>
+      </ul>
+      <p><strong>B面 · 看反应再推进</strong></p>
+      <ul>
+        <li>有兴趣问价 → "帮您查免费领取" → 算综合账</li>
+        <li>没反应/不互动 → "免费测网速"，工程师上</li>
+        <li>测完有兴趣 → 算账：家庭通讯+电视+门禁一体</li>
+      </ul>
+      <div class="tip">核心心法：先帮用户解决门禁问题，再像朋友一样聊生活场景。严禁进门就推销！</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  中国电信福建 · 全渠道运营事业部 · 智慧社区"门禁+智屏"场景化销售<br>
+  本文档仅供内部使用
+</footer>
+
+<script>
+// 搜索过滤
+const searchInput = document.getElementById('searchInput');
+const faqItems = document.querySelectorAll('.faq-item');
+const sectionTitles = document.querySelectorAll('.section-title');
+const navButtons = document.querySelectorAll('.nav button');
+
+let currentCat = 'all';
+
+function filterFAQ() {
+  const keyword = searchInput.value.trim().toLowerCase();
+  faqItems.forEach(item => {
+    const cat = item.dataset.cat;
+    const text = item.textContent.toLowerCase();
+    const catMatch = currentCat === 'all' || cat === currentCat;
+    const keyMatch = !keyword || text.includes(keyword);
+    item.style.display = (catMatch && keyMatch) ? '' : 'none';
+  });
+  sectionTitles.forEach(title => {
+    const cat = title.dataset.cat;
+    const catMatch = currentCat === 'all' || cat === currentCat;
+    title.style.display = catMatch ? '' : 'none';
+  });
+}
+
+searchInput.addEventListener('input', filterFAQ);
+
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    navButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCat = btn.dataset.cat;
+    filterFAQ();
+  });
+});
+
+// 折叠展开
+faqItems.forEach(item => {
+  item.querySelector('.faq-q').addEventListener('click', () => {
+    item.classList.toggle('open');
+  });
+});
+</script>
+</body>
+</html>
