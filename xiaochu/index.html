@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小厨 · 丰富美味食谱</title>
+  <meta name="description" content="小厨 —— 一个收录家常快手、硬核宴客、烘焙甜点、暖心汤羹、宵夜小龙虾与减脂轻食的食谱网站。" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header>
+    <div class="bar">
+      <div class="logoo"><span class="mark">🦞</span>小厨</div>
+      <div class="search"><input id="search" type="text" placeholder="搜菜名 / 标签，如：小龙虾、减脂、烘焙…" /></div>
+      <button id="random">🎲 今天吃什么</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>小厨 · <span class="accent">把每一天都煮得香喷喷</span></h1>
+    <p>收录六大类丰富食谱，从 10 分钟快手菜到宴客硬菜、从烘焙甜点到宵夜小龙虾，
+       食材、步骤、小贴士一应俱全。今天，想吃点什么好吃的？</p>
+    <div class="stats">
+      <div><b id="stat-n">18</b>道精选食谱</div>
+      <div><b>6</b>大美食分类</div>
+      <div><b>🦞</b>宵夜小龙虾专区</div>
+    </div>
+  </section>
+
+  <main>
+    <div class="tool-bar">
+      <div id="chips"></div>
+      <div id="count"></div>
+    </div>
+    <div id="grid"></div>
+  </main>
+
+  <footer>
+    <p><b>小厨</b> · 一个关于「好吃」的食谱小站　|　点击任意食谱查看完整做法</p>
+    <p style="margin-top:.4rem;opacity:.8">内容为料理示例，实际烹饪请注意火候与食材安全 🔥</p>
+  </footer>
+
+  <!-- 食谱详情弹窗 -->
+  <div id="modal">
+    <div class="modal-box">
+      <div class="m-head">
+        <button class="m-close" aria-label="关闭">×</button>
+        <div class="emoji" id="m-emoji">🍳</div>
+        <div class="m-cat" id="m-cat"></div>
+        <h2 id="m-name"></h2>
+        <div class="m-meta" id="m-meta"></div>
+      </div>
+      <div class="m-tags" id="m-tags"></div>
+      <div class="m-body">
+        <h4>🧺 食材清单</h4>
+        <ul id="m-ing"></ul>
+        <h4>👩‍🍳 做法步骤</h4>
+        <ul id="m-step"></ul>
+        <h4>💡 小贴士</h4>
+        <ul id="m-tips"></ul>
+      </div>
+      <div class="m-foot">小厨 · 愿你每次下厨都开心，每次开饭都满足。</div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
