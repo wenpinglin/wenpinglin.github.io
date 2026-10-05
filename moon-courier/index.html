@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>月球快递员 · M5 打磨发布</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./js/lib/three.module.js",
+      "lil-gui": "./js/lib/lil-gui.esm.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- 对局 HUD -->
+  <div id="hud" style="display:none">
+    <div id="hud-top">
+      <div class="hud-item"><span class="hud-label">距离</span><span id="hud-distance">0</span><span class="hud-unit">m</span></div>
+      <div class="hud-item"><span class="hud-label">月尘</span><span id="hud-dust">0</span></div>
+      <div class="hud-item" id="hud-combo-wrap" style="display:none"><span id="hud-combo">x0</span></div>
+      <div class="hud-item" id="daily-timer" style="display:none">⏱ 120s</div>
+    </div>
+    <div id="oxygen-bar" style="display:none"><div id="oxygen-fill"></div><span class="oxy-label">氧气</span></div>
+    <div id="charge-bar"><div id="charge-fill"></div></div>
+    <div id="hud-hint">空格/点击 跳跃 · 长按蓄力 · ←→/左右拖动 躲避陨石</div>
+    <div id="pause-btn" title="暂停（Esc）">⏸</div>
+  </div>
+
+  <div id="pop-layer"></div>
+  <div id="level-intro"></div>
+
+  <!-- 首启引导 -->
+  <div id="setup-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h1>月球快递员</h1>
+      <p class="subtitle">入职登记 · 取好你的名字，选好你的角色</p>
+      <div class="setup-row">
+        <label class="setup-label">昵称</label>
+        <input id="nickname-input" maxlength="12" placeholder="无名快递员（可留空）">
+      </div>
+      <div class="setup-label">选择你的快递员（必选 · 十二生肖 + 特邀小黄鸭）</div>
+      <div id="setup-char-grid" class="char-grid"></div>
+      <button id="setup-done-btn" class="btn-primary">签收入职，开始派送</button>
+    </div>
+  </div>
+
+  <!-- 主菜单 -->
+  <div id="menu-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h1>月球快递员</h1>
+      <p class="subtitle">月宫快递公司 · M5 打磨发布</p>
+      <div id="menu-courier" class="menu-courier"></div>
+      <div id="menu-btns" class="menu-btns"></div>
+    </div>
+  </div>
+
+  <!-- 关卡选择 -->
+  <div id="level-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h2>奔月之路 · 选择派送任务</h2>
+      <div id="level-grid" class="level-grid"></div>
+      <button id="level-back-btn" class="btn-secondary">← 返回</button>
+    </div>
+  </div>
+
+  <!-- 角色选择 -->
+  <div id="char-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h2>更换角色 · 13 位快递员</h2>
+      <div id="char-grid" class="char-grid"></div>
+      <div class="char-btns">
+        <button id="char-confirm-btn" class="btn-primary">确认更换</button>
+        <button id="char-back-btn" class="btn-secondary">← 返回</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 图鉴：月球小百科 -->
+  <div id="codex-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h2>月球小百科 · 图鉴</h2>
+      <div id="codex-grid" class="codex-page-grid"></div>
+      <button id="codex-back-btn" class="btn-secondary">← 返回</button>
+    </div>
+  </div>
+
+  <!-- 成就 -->
+  <div id="achv-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h2>成就</h2>
+      <div id="achv-grid" class="achv-grid"></div>
+      <button id="achv-back-btn" class="btn-secondary">← 返回</button>
+    </div>
+  </div>
+
+  <!-- 排行榜 -->
+  <div id="rank-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h2>排行榜</h2>
+      <div id="rank-body" class="rank-body"></div>
+      <button id="rank-back-btn" class="btn-secondary">← 返回</button>
+    </div>
+  </div>
+
+  <!-- 商店 -->
+  <div id="shop-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h2>月宫快递 · 装备商店</h2>
+      <div id="shop-dust" class="shop-dust"></div>
+      <div id="shop-grid" class="shop-grid"></div>
+      <button id="shop-back-btn" class="btn-secondary">← 返回</button>
+    </div>
+  </div>
+
+  <!-- 死亡页 -->
+  <div id="death-screen" class="overlay" style="display:none">
+    <div class="panel">
+      <h2>信号丢失…</h2>
+      <p class="death-quote" id="death-quote"></p>
+      <div class="death-stats">
+        <div><span class="num" id="death-distance">0</span><span class="lbl">最远距离</span></div>
+        <div><span class="num" id="death-dust">0</span><span class="lbl">存余月尘(损失30%)</span></div>
+      </div>
+      <button id="retry-btn" class="btn-primary">从驿站继续</button>
+      <button id="death-card-btn" class="btn-secondary">生成战报卡</button>
+      <button id="death-menu-btn" class="btn-secondary">回到主菜单</button>
+      <p class="death-tip">月宫快递铁律：包裹可以等，快递员只有一个。</p>
+    </div>
+  </div>
+
+  <!-- 无尽/每日结算页 -->
+  <div id="result-screen" class="overlay" style="display:none">
+    <div class="panel">
+      <h2 id="result-title"></h2>
+      <div class="death-stats">
+        <div><span class="num" id="result-dist">0</span><span class="lbl">最远距离</span></div>
+        <div><span class="num" id="result-dust">0</span><span class="lbl">月尘</span></div>
+        <div><span class="num" id="result-combo">x0</span><span class="lbl">连击峰值</span></div>
+      </div>
+      <p id="result-sub" class="result-sub"></p>
+      <button id="result-retry-btn" class="btn-primary">再来一局</button>
+      <button id="result-card-btn" class="btn-secondary">生成战报卡</button>
+      <button id="result-menu-btn" class="btn-secondary">回主菜单</button>
+    </div>
+  </div>
+
+  <!-- 通关结算页 -->
+  <div id="clear-screen" class="overlay" style="display:none">
+    <div class="panel">
+      <h2 id="clear-title"></h2>
+      <div id="clear-stars" class="clear-stars"></div>
+      <div id="clear-detail" class="clear-detail"></div>
+      <div id="clear-dust" class="clear-dust"></div>
+      <div class="menu-btns">
+        <button id="clear-next-btn" class="btn-primary">下一关 →</button>
+        <button id="clear-replay-btn" class="btn-secondary">再跑一次</button>
+        <button id="clear-card-btn" class="btn-secondary">生成战报卡</button>
+        <button id="clear-menu-btn" class="btn-secondary">回主菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 暂停界面 -->
+  <div id="pause-screen" class="overlay" style="display:none">
+    <div class="panel">
+      <h2>已暂停</h2>
+      <p class="subtitle">喘口气——月球重力会让月尘飘很久，但包裹不会等你。</p>
+      <button id="pause-resume-btn" class="btn-primary">继续派送</button>
+      <button id="pause-restart-btn" class="btn-secondary">重开本局</button>
+      <button id="pause-menu-btn" class="btn-secondary">回主菜单</button>
+      <p class="death-tip">提示：Esc 键或右上角按钮都可暂停。</p>
+    </div>
+  </div>
+
+  <!-- 战报卡弹窗 -->
+  <div id="card-modal" class="overlay" style="display:none">
+    <div class="panel panel-wide card-modal-panel">
+      <h2>你的月球快递单</h2>
+      <img id="card-img" alt="战报卡">
+      <div class="menu-btns">
+        <button id="card-download-btn" class="btn-primary">下载 PNG</button>
+        <button id="card-close-btn" class="btn-secondary">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- M5-3：存档备份/恢复 -->
+  <div id="backup-screen" class="overlay" style="display:none">
+    <div class="panel panel-wide">
+      <h2>存档备份 · 恢复</h2>
+      <p class="subtitle">备份码可跨设备迁移存档：复制本码到新设备的「存档」框粘贴即可导入</p>
+      <textarea id="backup-code" rows="4" spellcheck="false" placeholder="备份码将显示在这里，或粘贴要导入的备份码"></textarea>
+      <div class="char-btns">
+        <button id="backup-copy-btn" class="btn-primary">复制备份码</button>
+        <button id="backup-import-btn" class="btn-secondary">导入此码</button>
+        <button id="backup-close-btn" class="btn-secondary">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>
